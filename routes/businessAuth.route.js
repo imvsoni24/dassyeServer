@@ -77,10 +77,11 @@ businessAuthRoute.post("/verifyBusinessOTP",async(req,res)=>{
 
 businessAuthRoute.post("/businessSignup", async (req, res) => {
     try {
-      const { businessName,distibutorName,location,website, mobileNumber,email,password } = req.body;
+      const { businessName,distributorName,location,website, mobileNumber,email,password } = req.body;
   
       // Check if the email id is already registered
       const exist = await businessSignupModel.findOne({ email });
+      console.log(exist)
       if (exist) {
         return res.json({ message: 'Email id is already registered.' });
       }
@@ -93,7 +94,7 @@ businessAuthRoute.post("/businessSignup", async (req, res) => {
           res.json({ message: err });
         } else {
 
-      const newOne = new businessSignupModel({ businessName,distibutorName,location,website, mobileNumber,email, password:hash });
+      const newOne = new businessSignupModel({ businessName,distributorName,location,website, mobileNumber,email, password:hash });
       await newOne.save();
       await saveOTPModel.deleteMany({email})
       res.json({ message: 'Registered successfully' });
