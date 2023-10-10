@@ -77,7 +77,7 @@ businessAuthRoute.post("/verifyBusinessOTP",async(req,res)=>{
 
 businessAuthRoute.post("/businessSignup", async (req, res) => {
     try {
-      const { businessName,location,website, mobileNumber,email,password } = req.body;
+      const { businessName,distibutorName,location,website, mobileNumber,email,password } = req.body;
   
       // Check if the email id is already registered
       const exist = await businessSignupModel.findOne({ email });
@@ -93,7 +93,7 @@ businessAuthRoute.post("/businessSignup", async (req, res) => {
           res.json({ message: err });
         } else {
 
-      const newOne = new businessSignupModel({ businessName,location,website, mobileNumber,email, password:hash });
+      const newOne = new businessSignupModel({ businessName,distibutorName,location,website, mobileNumber,email, password:hash });
       await newOne.save();
       await saveOTPModel.deleteMany({email})
       res.json({ message: 'Registered successfully' });
@@ -119,7 +119,7 @@ businessAuthRoute.post("/businessSignup", async (req, res) => {
               jwt.verify(token,process.env.tokenKey,(err, decoded) => {
                 if (decoded) {
                   res.json({
-                    message: "Succesfully login",
+                    message: "Successfully login",
                     token: token,
                     email:decoded.email,
                   });

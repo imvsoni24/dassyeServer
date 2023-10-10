@@ -5,6 +5,10 @@ const businessSignupSchema = mongoose.Schema({
         type: String,
         required: true,
       },
+      distributorName: {
+        type: String,
+        required: true,
+      },
       location:{
         type:String,
         required:true

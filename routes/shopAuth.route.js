@@ -119,7 +119,7 @@ shopAuthRoute.post("/shopSignup", async (req, res) => {
               jwt.verify(token,process.env.tokenKey,(err, decoded) => {
                 if (decoded) {
                   res.json({
-                    message: "Succesfully login",
+                    message: "Successfully login",
                     token: token,
                     email:decoded.email,
                   });
