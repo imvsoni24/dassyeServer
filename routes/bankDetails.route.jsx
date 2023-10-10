@@ -12,7 +12,7 @@ bankDetailsRoute.post("/saveBankDetails",async(req,res)=>{
         }
         let bankDetails = new bankDetailsModel({accountNumber,bankName,ifscCode})
         await bankDetails.save()
-        res.json({message:"Account is added"})
+        res.json({message:"Account has been added"})
     }
     catch(error){
         res.json({message:error._message})

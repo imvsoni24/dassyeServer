@@ -9,7 +9,7 @@ addressRoute.post("/saveaddress",async(req,res)=>{
         const {street,city,state,postal} = req.body
         let address = new addressModel({street,city,state,postal})
         await address.save()
-        res.json({message:"Address is added"})
+        res.json({message:"Address has been added"})
     }
     catch(error){
         res.json({message:error._message})

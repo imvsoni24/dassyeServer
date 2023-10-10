@@ -12,7 +12,7 @@ licenseRoute.post("/saveLicense",async(req,res)=>{
         }
         let license = new licenseModel({licenseNumber,issuingAuthority,expirationDate})
         await license.save()
-        res.json({message:"License is added"})
+        res.json({message:"License has been added"})
     }
     catch(error){
         res.json({message:error._message})

@@ -3,7 +3,7 @@ const panGstinModel = require("../models/panGstinModel")
 
 const panGstinRoute = express.Router()
 
-panGstinRoute.post("/panGstin",async(req,res)=>{
+panGstinRoute.post("/savePanGstin",async(req,res)=>{
     try{
         const {panNumber,gstinNumber} = req.body
         let existPan = await panGstinModel.findOne({panNumber})
