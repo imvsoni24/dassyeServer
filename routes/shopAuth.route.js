@@ -114,14 +114,14 @@ shopAuthRoute.post("/shopSignup", async (req, res) => {
       try {
         bcrypt.compare(password, exist.password, (err, result) => {
           if (result) {
-            const token = jwt.sign({email: exist.email},process.env.tokenKey);
+            const token = jwt.sign({id: exist._id},process.env.tokenKey);
             if (token) {
               jwt.verify(token,process.env.tokenKey,(err, decoded) => {
                 if (decoded) {
                   res.json({
                     message: "Successfully login",
                     token: token,
-                    email:decoded.email,
+                    id:decoded.id,
                   });
                 } else {
                   res.json({ message: err });
@@ -135,6 +135,54 @@ shopAuthRoute.post("/shopSignup", async (req, res) => {
       } catch (err) {
         res.json({ message: err });
       }
+    }
+  });
+
+  shopAuthRoute.get("/getShopProfile",async(req,res)=>{
+    try {
+      const shopId = req.header('Shop-Id');
+      const details = await shopSignupModel.findOne({ _id: shopId });
+      console.log(details)
+      res.json({ data: details });
+    } catch (error) {
+      res.json({ message: error._message });
+    }
+  })
+
+  shopAuthRoute.patch("/updateShopProfile/:id", async (req, res) => {
+    try {
+      const { shopName,typeOfShop, location, mobileNumber, email } = req.body;
+      const id = req.params.id;
+  
+  
+      await shopSignupModel.findByIdAndUpdate({ _id: id }, {
+        shopName,
+        typeOfShop,
+        location,
+        mobileNumber,
+        email,
+      });
+  
+      res.json({ message: 'Updated successfully'});
+    } catch (error) {
+      res.json({ message: 'An error occurred while updating.' });
+    }
+  });
+
+  shopAuthRoute.patch("/updateShopPassword/:id", async (req, res) => {
+    try {
+      const { password } = req.body;
+      const id = req.params.id;
+  
+      const hashedPassword = await bcrypt.hash(password, 5);
+  
+      await shopSignupModel.findByIdAndUpdate({ _id: id }, {
+        password:hashedPassword
+      });
+  
+      res.json({ message: 'Updated successfully'});
+    } catch (error) {
+      res.json({ message: 'An error occurred while updating.' });
     }
   });
 

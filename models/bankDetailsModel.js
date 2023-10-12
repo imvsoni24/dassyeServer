@@ -1,6 +1,10 @@
 const mongoose = require("mongoose")
 
 const bankDetailsSchema = mongoose.Schema({
+  id:{
+    type:String,
+    required:true
+  },
     accountNumber: {
       type: String,
       required: true,

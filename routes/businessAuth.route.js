@@ -12,12 +12,6 @@ businessAuthRoute.post("/sendBusinessOTP", async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Check if the email id is already registered
-    const exist = await businessSignupModel.findOne({ email });
-    if (exist) {
-      return res.json({ message: 'Email id is already registered.' });
-    }
-
     // Generate OTP
     const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
 
@@ -89,18 +83,12 @@ businessAuthRoute.post("/businessSignup", async (req, res) => {
       if (!password || password.trim() === '') {
         return res.json({ message: 'Please set a password.' });
       }
-      bcrypt.hash(password, 5, async (err, hash) => {
-        if (err) {
-          res.json({ message: err });
-        } else {
-
+      const hash = await bcrypt.hash(password, 5);
       const newOne = new businessSignupModel({ businessName,distributorName,location,website, mobileNumber,email, password:hash });
       await newOne.save();
       await saveOTPModel.deleteMany({email})
       res.json({ message: 'Registered successfully' });
-        }
-
-    })} catch (error) {
+  } catch (error) {
       console.error(error);
       res.json({ message: error._message });
     }
@@ -115,14 +103,15 @@ businessAuthRoute.post("/businessSignup", async (req, res) => {
       try {
         bcrypt.compare(password, exist.password, (err, result) => {
           if (result) {
-            const token = jwt.sign({email: exist.email},process.env.tokenKey);
+            const token = jwt.sign({id: exist._id},process.env.tokenKey);
             if (token) {
               jwt.verify(token,process.env.tokenKey,(err, decoded) => {
+                console.log(decoded)
                 if (decoded) {
                   res.json({
                     message: "Successfully login",
                     token: token,
-                    email:decoded.email,
+                    id:decoded.id,
                   });
                 } else {
                   res.json({ message: err });
@@ -136,6 +125,56 @@ businessAuthRoute.post("/businessSignup", async (req, res) => {
       } catch (err) {
         res.json({ message: err });
       }
+    }
+  });
+
+  businessAuthRoute.get("/getBusinessProfile",async(req,res)=>{
+    try {
+      const businessId = req.header('Business-Id');
+      const details = await businessSignupModel.findOne({ _id: businessId });
+      console.log(details)
+      res.json({ data: details });
+    } catch (error) {
+      res.json({ message: error._message });
+    }
+  })
+
+  businessAuthRoute.patch("/updateBusinessProfile/:id", async (req, res) => {
+    try {
+      const { businessName, distributorName, location, website, mobileNumber, email } = req.body;
+      const id = req.params.id;
+  
+      // const hashedPassword = await bcrypt.hash(password, 5);
+  
+      await businessSignupModel.findByIdAndUpdate({ _id: id }, {
+        businessName,
+        distributorName,
+        location,
+        website,
+        mobileNumber,
+        email,
+      });
+  
+      res.json({ message: 'Updated successfully'});
+    } catch (error) {
+      res.json({ message: 'An error occurred while updating.' });
+    }
+  });
+
+  businessAuthRoute.patch("/updateBusinessPassword/:id", async (req, res) => {
+    try {
+      const { password } = req.body;
+      const id = req.params.id;
+  
+      const hashedPassword = await bcrypt.hash(password, 5);
+  
+      await businessSignupModel.findByIdAndUpdate({ _id: id }, {
+        password:hashedPassword
+      });
+  
+      res.json({ message: 'Updated successfully'});
+    } catch (error) {
+      res.json({ message: 'An error occurred while updating.' });
     }
   });
 

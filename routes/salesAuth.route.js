@@ -114,14 +114,14 @@ salesAuthRoute.post("/salesSignup", async (req, res) => {
       try {
         bcrypt.compare(password, exist.password, (err, result) => {
           if (result) {
-            const token = jwt.sign({ email: exist.email},process.env.tokenKey);
+            const token = jwt.sign({id : exist._id},process.env.tokenKey);
             if (token) {
               jwt.verify(token,process.env.tokenKey,(err, decoded) => {
                 if (decoded) {
                   res.json({
                     message: "Successfully login",
                     token: token,
-                    email:decoded.email,
+                    id:decoded.id,
                   });
                 } else {
                   res.json({ message: err });
@@ -135,6 +135,54 @@ salesAuthRoute.post("/salesSignup", async (req, res) => {
       } catch (err) {
         res.json({ message: err });
       }
+    }
+  });
+
+  salesAuthRoute.get("/getSalesProfile",async(req,res)=>{
+    try {
+      const salesId = req.header('Sales-Id');
+      const details = await salesSignupModel.findOne({ _id: salesId });
+      console.log(details)
+      res.json({ data: details });
+    } catch (error) {
+      res.json({ message: error._message });
+    }
+  })
+
+  salesAuthRoute.patch("/updateSalesProfile/:id", async (req, res) => {
+    try {
+      const { fullName,position, companyName, mobileNumber, email } = req.body;
+      const id = req.params.id;
+  
+  
+      await salesSignupModel.findByIdAndUpdate({ _id: id }, {
+        fullName,
+        position,
+        companyName,
+        mobileNumber,
+        email,
+      });
+  
+      res.json({ message: 'Updated successfully'});
+    } catch (error) {
+      res.json({ message: 'An error occurred while updating.' });
+    }
+  });
+
+  salesAuthRoute.patch("/updateSalesPassword/:id", async (req, res) => {
+    try {
+      const { password } = req.body;
+      const id = req.params.id;
+  
+      const hashedPassword = await bcrypt.hash(password, 5);
+  
+      await salesSignupModel.findByIdAndUpdate({ _id: id }, {
+        password:hashedPassword
+      });
+  
+      res.json({ message: 'Updated successfully'});
+    } catch (error) {
+      res.json({ message: 'An error occurred while updating.' });
     }
   });
   

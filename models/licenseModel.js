@@ -1,6 +1,10 @@
 const mongoose = require("mongoose")
 
 const licenseSchema = mongoose.Schema({
+  id:{
+    type:String,
+    required:true
+  },
     licenseNumber: {
       type: String,
       required: true,
